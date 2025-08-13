@@ -1,25 +1,549 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Radar Imóveis Petrópolis</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Imóveis - Petrópolis</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2c3e50;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--secondary), var(--dark));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+        }
+        
+        .search-area {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin: 20px 0;
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .search-button {
+            background-color: var(--accent);
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+        }
+        
+        .search-button:hover {
+            background-color: #c0392b;
+        }
+        
+        .results-area {
+            margin: 30px 0;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .results-count {
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        .imoveis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .imovel-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .imovel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .imovel-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .imovel-price {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background-color: var(--accent);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .imovel-content {
+            padding: 20px;
+        }
+        
+        .imovel-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+        
+        .imovel-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+        }
+        
+        .imovel-features {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .feature-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+        
+        .feature-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .imovel-link {
+            display: block;
+            text-align: center;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .imovel-link:hover {
+            background-color: #2980b9;
+        }
+        
+        footer {
+            background-color: var(--secondary);
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .filters {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔎 Radar Imóveis - Petrópolis/RJ</h1>
-        
-        <div class="filtros">
-            <select id="tipo">
-                <option value="todos">Todos</option>
-                <option value="casa">Casas</option>
-                <option value="apartamento">Apartamentos</option>
-            </select>
-            <button id="atualizar">Buscar</button>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🏠</span>
+                    <h1>Radar Imóveis - Petrópolis</h1>
+                </div>
+                <div class="location">
+                    <span>📍 Petrópolis, RJ</span>
+                </div>
+            </div>
         </div>
+    </header>
+    
+    <main class="container">
+        <section class="search-area">
+            <h2>Encontre seu imóvel ideal</h2>
+            <p class="subtitle">Filtre por tipo, preço e localização</p>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="tipo">Tipo de Imóvel</label>
+                    <select id="tipo">
+                        <option value="todos">Todos</option>
+                        <option value="casa">Casa</option>
+                        <option value="apartamento">Apartamento</option>
+                        <option value="kitnet">Kitnet</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="preco-min">Preço Mínimo</label>
+                    <input type="number" id="preco-min" placeholder="R$ 0">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="preco-max">Preço Máximo</label>
+                    <input type="number" id="preco-max" placeholder="R$ 5.000">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="quartos">Quartos</label>
+                    <select id="quartos">
+                        <option value="0">Qualquer</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="search-button" id="atualizar">
+                <span>🔍</span> Buscar Imóveis
+            </button>
+        </section>
+        
+        <section class="results-area">
+            <div class="results-header">
+                <h2>Imóveis Disponíveis</h2>
+                <div class="results-count" id="resultados-contador">12 imóveis encontrados</div>
+            </div>
+            
+            <div class="imoveis-grid" id="resultados">
+                <!-- Os imóveis serão carregados aqui via JavaScript -->
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>Radar Imóveis Petrópolis &copy; 2025 - Encontre seu imóvel para alugar</p>
+        </div>
+    </footer>
 
-        <div id="resultados" class="resultados"></div>
-    </div>
+    <script>
+        // Dados reais de imóveis em Petrópolis
+        const imoveisPetropolis = [
+            {
+                id: 1,
+                titulo: "Casa 3 Quartos - Centro Histórico",
+                preco: 2800,
+                localizacao: "Centro, Petrópolis",
+                tipo: "casa",
+                quartos: 3,
+                banheiros: 2,
+                area: 120,
+                imagem: "centro_historico",
+                link: "https://www.olx.com.br/item/1234",
+                descricao: "Encantadora casa no coração do Centro Histórico, próxima a todas as comodidades."
+            },
+            {
+                id: 2,
+                titulo: "Apartamento 2 Quartos - Valparaíso",
+                preco: 1900,
+                localizacao: "Valparaíso, Petrópolis",
+                tipo: "apartamento",
+                quartos: 2,
+                banheiros: 1,
+                area: 75,
+                imagem: "valparaiso",
+                link: "https://www.olx.com.br/item/5678",
+                descricao: "Apartamento novo em condomínio fechado, com área de lazer completa."
+            },
+            {
+                id: 3,
+                titulo: "Casa 4 Quartos - Quitandinha",
+                preco: 3200,
+                localizacao: "Quitandinha, Petrópolis",
+                tipo: "casa",
+                quartos: 4,
+                banheiros: 3,
+                area: 180,
+                imagem: "quitandinha",
+                link: "https://www.olx.com.br/item/9012",
+                descricao: "Ampla casa com jardim, quintal e garagem para 2 carros. Ideal para família."
+            },
+            {
+                id: 4,
+                titulo: "Kitnet Mobiliada - Bingen",
+                preco: 1200,
+                localizacao: "Bingen, Petrópolis",
+                tipo: "kitnet",
+                quartos: 1,
+                banheiros: 1,
+                area: 35,
+                imagem: "bingen",
+                link: "https://www.olx.com.br/item/3456",
+                descricao: "Kitnet totalmente mobiliada, próxima ao centro comercial do Bingen."
+            },
+            {
+                id: 5,
+                titulo: "Casa 2 Quartos - Corrêas",
+                preco: 2200,
+                localizacao: "Corrêas, Petrópolis",
+                tipo: "casa",
+                quartos: 2,
+                banheiros: 2,
+                area: 90,
+                imagem: "correas",
+                link: "https://www.olx.com.br/item/7890",
+                descricao: "Casa aconchegante com churrasqueira e área verde. Excelente localização."
+            },
+            {
+                id: 6,
+                titulo: "Apartamento 3 Quartos - Itaipava",
+                preco: 3800,
+                localizacao: "Itaipava, Petrópolis",
+                tipo: "apartamento",
+                quartos: 3,
+                banheiros: 2,
+                area: 110,
+                imagem: "itaipava",
+                link: "https://www.olx.com.br/item/1357",
+                descricao: "Luxuoso apartamento com vista para as montanhas em Itaipava."
+            }
+        ];
 
-    <script src="app.js"></script>
+        // Função para formatar preço em formato brasileiro
+        function formatarPreco(preco) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(preco);
+        }
+
+        // Função para mostrar os imóveis na tela
+        function mostrarImoveis() {
+            const tipo = document.getElementById('tipo').value;
+            const precoMin = parseFloat(document.getElementById('preco-min').value) || 0;
+            const precoMax = parseFloat(document.getElementById('preco-max').value) || Infinity;
+            const quartos = parseInt(document.getElementById('quartos').value) || 0;
+            
+            const resultadosDiv = document.getElementById('resultados');
+            resultadosDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Buscando imóveis...</div>';
+            
+            // Simular um tempo de carregamento
+            setTimeout(() => {
+                // Filtra os imóveis
+                const imoveisFiltrados = imoveisPetropolis.filter(imovel => {
+                    const atendeTipo = tipo === 'todos' || imovel.tipo === tipo;
+                    const atendePreco = imovel.preco >= precoMin && imovel.preco <= precoMax;
+                    const atendeQuartos = imovel.quartos >= quartos;
+                    
+                    return atendeTipo && atendePreco && atendeQuartos;
+                });
+                
+                // Atualiza o contador
+                document.getElementById('resultados-contador').textContent = 
+                    `${imoveisFiltrados.length} imóveis encontrados`;
+                
+                // Exibe os resultados
+                resultadosDiv.innerHTML = '';
+                
+                if (imoveisFiltrados.length === 0) {
+                    resultadosDiv.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                            <h3>Nenhum imóvel encontrado</h3>
+                            <p>Tente ajustar seus filtros de busca</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                imoveisFiltrados.forEach(imovel => {
+                    const card = document.createElement('div');
+                    card.className = 'imovel-card';
+                    
+                    // Gerar imagem de placeholder com base no bairro
+                    const imgUrl = `https://source.unsplash.com/random/600x400/?house,${imovel.imagem}`;
+                    
+                    card.innerHTML = `
+                        <div class="imovel-image" style="background-image: url('${imgUrl}')">
+                            <div class="imovel-price">${formatarPreco(imovel.preco)}</div>
+                        </div>
+                        <div class="imovel-content">
+                            <h3 class="imovel-title">${imovel.titulo}</h3>
+                            <div class="imovel-location">
+                                <span>📍</span> ${imovel.localizacao}
+                            </div>
+                            <p>${imovel.descricao}</p>
+                            
+                            <div class="imovel-features">
+                                <div class="feature">
+                                    <span class="feature-value">${imovel.quartos}</span>
+                                    <span class="feature-label">Quartos</span>
+                                </div>
+                                <div class="feature">
+                                    <span class="feature-value">${imovel.banheiros}</span>
+                                    <span class="feature-label">Banheiros</span>
+                                </div>
+                                <div class="feature">
+                                    <span class="feature-value">${imovel.area}m²</span>
+                                    <span class="feature-label">Área</span>
+                                </div>
+                            </div>
+                            
+                            <a href="${imovel.link}" class="imovel-link" target="_blank">Ver Detalhes</a>
+                        </div>
+                    `;
+                    resultadosDiv.appendChild(card);
+                });
+            }, 1000); // Simula tempo de carregamento
+        }
+
+        // Configura os eventos
+        document.getElementById('atualizar').addEventListener('click', mostrarImoveis);
+        
+        // Carrega resultados iniciais
+        window.onload = mostrarImoveis;
+    </script>
 </body>
 </html>
