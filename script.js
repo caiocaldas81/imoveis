@@ -1,47 +1,69 @@
-// Versão simplificada com dados simulados realistas
-const imoveisReaisPetropolis = [
-  {
-    titulo: "Casa 3 Quartos - Quitandinha",
-    preco: "R$ 2.600/mês",
-    localizacao: "Quitandinha, Petrópolis",
-    link: "https://www.olx.com.br/exemplo1"
-  },
-  {
-    titulo: "Apartamento 2 Quartos - Centro",
-    preco: "R$ 1.800/mês",
-    localizacao: "Centro, Petrópolis",
-    link: "https://www.olx.com.br/exemplo2"
-  },
-  {
-    titulo: "Casa Condomínio - Valparaíso",
-    preco: "R$ 3.200/mês",
-    localizacao: "Valparaíso, Petrópolis",
-    link: "https://www.olx.com.br/exemplo3"
+async function buscarImoveisReais() {
+  try {
+    // Busca em múltiplas fontes simultaneamente
+    const [olx, zap] = await Promise.all([
+      fetch('http://localhost:3000/api/olx').then(res => res.json()),
+      fetch('http://localhost:3000/api/zap').then(res => res.json())
+    ]);
+
+    const todosImoveis = [...olx, ...zap];
+    exibirResultados(todosImoveis);
+    
+    // Armazena para comparação futura
+    localStorage.setItem('ultimaBusca', JSON.stringify({
+      data: new Date().toISOString(),
+      imoveis: todosImoveis.map(i => i.link)
+    }));
+    
+  } catch (error) {
+    console.error("Erro na busca:", error);
+    exibirResultados([]);
   }
-];
-
-document.getElementById('atualizar').addEventListener('click', () => {
-  const tipo = document.getElementById('tipo').value.toLowerCase();
-  const resultados = tipo === 'todos' 
-    ? imoveisReaisPetropolis 
-    : imoveisReaisPetropolis.filter(imovel =>
-        imovel.titulo.toLowerCase().includes(tipo) ||
-        imovel.localizacao.toLowerCase().includes(tipo));
-  
-  exibirResultados(resultados);
-});
-
-function exibirResultados(imoveis) {
-  const div = document.getElementById('resultados');
-  div.innerHTML = imoveis.map(imovel => `
-    <div class="imovel-card">
-      <h3>${imovel.titulo}</h3>
-      <p><strong>${imovel.preco}</strong></p>
-      <p>📍 ${imovel.localizacao}</p>
-      <a href="${imovel.link}" target="_blank">Ver no site</a>
-    </div>
-  `).join('');
 }
 
-// Carrega resultados iniciais
-window.onload = () => document.getElementById('atualizar').click();
+// Sistema de alertas
+function configurarAlertas() {
+  const alertas = JSON.parse(localStorage.getItem('alertas')) || [];
+  
+  document.getElementById('criar-alerta').addEventListener('click', () => {
+    const novoAlerta = {
+      tipo: document.getElementById('alerta-tipo').value,
+      precoMax: parseFloat(document.getElementById('alerta-preco-max').value),
+      bairro: document.getElementById('alerta-bairro').value.toLowerCase(),
+      email: document.getElementById('alerta-email').value,
+      dataCriacao: new Date().toISOString()
+    };
+    
+    alertas.push(novoAlerta);
+    localStorage.setItem('alertas', JSON.stringify(alertas));
+    alert('Alerta criado com sucesso!');
+  });
+}
+
+// Verificar novos imóveis periodicamente
+function verificarNovosImoveis() {
+  setInterval(async () => {
+    const ultimaBusca = JSON.parse(localStorage.getItem('ultimaBusca'));
+    if (!ultimaBusca) return;
+
+    const response = await fetch('http://localhost:3000/api/olx');
+    const novosImoveis = await response.json();
+    
+    const imoveisNovos = novosImoveis.filter(imovel => 
+      !ultimaBusca.imoveis.includes(imovel.link)
+    );
+
+    if (imoveisNovos.length > 0) {
+      // Aqui você pode implementar o envio de email
+      console.log('Novos imóveis encontrados:', imoveisNovos);
+      alert(`${imoveisNovos.length} novos imóveis encontrados!`);
+    }
+  }, 3600000); // Verifica a cada 1 hora
+}
+
+// Inicialização
+window.onload = () => {
+  buscarImoveisReais();
+  configurarAlertas();
+  verificarNovosImoveis();
+};
